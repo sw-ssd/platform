@@ -228,6 +228,8 @@ func runOnceGuarded(ctx context.Context, deps Deps, now time.Time, p Params) (s 
 		}
 	}()
 
+	var errs []error
+
 	if s.TrialsExpired, err = deps.Billing.ExpireTrials(ctx, now, p.GraceDays); err != nil {
 		return s, fmt.Errorf("試用到期: %w", err)
 	}
@@ -235,7 +237,7 @@ func runOnceGuarded(ctx context.Context, deps Deps, now time.Time, p Params) (s 
 	// 只計數、不轉移 —— 這個數字是 operator 唯一能從摘要看見它的地方。
 	// 失敗不中止整趟（可觀測性查詢壞了不該擋住帳務掃描；錯誤仍往外傳，由呼叫端決定）。
 	if stuck, serr := deps.Store.TrialingSubscriptionsWithoutTrialEnd(ctx); serr != nil {
-		return s, fmt.Errorf("列出無到期日試用: %w", serr)
+		errs = append(errs, fmt.Errorf("列出無到期日試用: %w", serr))
 	} else {
 		s.StuckTrialing = len(stuck)
 	}
@@ -302,7 +304,10 @@ func runOnceGuarded(ctx context.Context, deps Deps, now time.Time, p Params) (s 
 		return s, fmt.Errorf("列出待收款期別: %w", err)
 	}
 	s.Receivables = len(overdue)
-	return s, periodErr
+	if periodErr != nil {
+		errs = append(errs, periodErr)
+	}
+	return s, errors.Join(errs...)
 }
 
 // RunGuarded 為排程的**唯一入口** = 單飛鎖 + RunOnce + panic 復原。

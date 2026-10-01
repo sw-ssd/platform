@@ -23,6 +23,26 @@ var _ store.Store = (*Store)(nil)
 // New 以既有 admin 連線建立 Store;連線的生命週期由呼叫端持有(Store 不 Close)。
 func New(db *sql.DB) *Store { return &Store{db: db} }
 
+// withSystemScope 在系統範圍(scope=all)的交易內執行 fn。
+//
+// companies 已 ENABLE ＋ FORCE RLS;生產的 admin 連線不是 superuser,必須先
+// `SET LOCAL app.current_data_scope = 'all'` 才能讀到跨租戶的公司列。交易結束即失效,
+// 避免殘留 scope=all 被後續請求重用。
+func (s *Store) withSystemScope(ctx context.Context, fn func(*sql.Tx) error) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if _, err := tx.ExecContext(ctx, `SET LOCAL app.current_data_scope = 'all'`); err != nil {
+		return err
+	}
+	if err := fn(tx); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 // Features 列出全部功能定義,以 code 為鍵。
 func (s *Store) Features(ctx context.Context) (map[string]store.Feature, error) {
 	rows, err := s.db.QueryContext(ctx,
@@ -154,9 +174,12 @@ func (s *Store) Subscription(ctx context.Context, companyID int) (*store.Subscri
 // 單產品場景 internal_id ↔ id 為 1:1;多產品需伴 product_id 維度(本階段未做)。
 func (s *Store) ResolveCompanyID(ctx context.Context, internalID uuid.UUID) (int, error) {
 	var id int
-	if err := s.db.QueryRowContext(ctx,
-		`SELECT id FROM companies WHERE internal_id = $1`, internalID,
-	).Scan(&id); err != nil {
+	err := s.withSystemScope(ctx, func(tx *sql.Tx) error {
+		return tx.QueryRowContext(ctx,
+			`SELECT id FROM companies WHERE internal_id = $1`, internalID,
+		).Scan(&id)
+	})
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, errcode.SysInternal.Error(nil) // 未知租戶鍵
 		}

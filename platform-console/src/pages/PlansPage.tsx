@@ -4,7 +4,7 @@ import { Badge } from "@ark-tailkit/ui/badge";
 import { Button } from "@ark-tailkit/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ark-tailkit/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@ark-tailkit/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@ark-tailkit/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@ark-tailkit/ui/field";
 import { Input } from "@ark-tailkit/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
 import { LabelledCheckbox } from "../components/labelled-checkbox";
@@ -61,13 +61,14 @@ function PriceForm(props: { planCode: string; onClose: () => void; onDone: () =>
       pending={mutation.isPending}
       error={mutation.isError ? describeError(mutation.error) : undefined}
       validate={() => {
+        const errs: Record<string, string> = {};
         if (!MONEY_PATTERN.test(basePrice().trim())) {
-          return "基本價金額格式錯誤：請輸入數字，最多兩位小數（例：1500.00）；不接受負金額。";
+          errs.basePrice = "基本價金額格式錯誤：請輸入數字，最多兩位小數（例：1500.00）；不接受負金額。";
         }
         if (!MONEY_PATTERN.test(seatPrice().trim())) {
-          return "單席價金額格式錯誤：請輸入數字，最多兩位小數（例：200.00）。";
+          errs.seatPrice = "單席價金額格式錯誤：請輸入數字，最多兩位小數（例：200.00）。";
         }
-        return undefined;
+        return Object.keys(errs).length > 0 ? errs : undefined;
       }}
       onSubmit={(reason) =>
         mutation.mutate({
@@ -79,45 +80,51 @@ function PriceForm(props: { planCode: string; onClose: () => void; onDone: () =>
         })
       }
     >
-      <Field>
-        <FieldLabel for="price-cycle">計費週期 *</FieldLabel>
-        <Select id="price-cycle" value={cycle()} onChange={(e) => setCycle(e.currentTarget.value)}>
-          <option value="monthly">月繳</option>
-          <option value="yearly">年繳</option>
-        </Select>
-        <FieldDescription>週期決定期別的加期方式（加一個月或加一年）。</FieldDescription>
-      </Field>
+      {(errors) => (
+        <>
+          <Field>
+            <FieldLabel for="price-cycle">計費週期 *</FieldLabel>
+            <Select id="price-cycle" value={cycle()} onChange={(e) => setCycle(e.currentTarget.value)}>
+              <option value="monthly">月繳</option>
+              <option value="yearly">年繳</option>
+            </Select>
+            <FieldDescription>週期決定期別的加期方式（加一個月或加一年）。</FieldDescription>
+          </Field>
 
-      <Field>
-        <FieldLabel for="price-base">基本價 *</FieldLabel>
-        <Input
-          id="price-base"
-          value={basePrice()}
-          placeholder="1500.00"
-          onInput={(e) => setBasePrice(e.currentTarget.value)}
-        />
-      </Field>
+          <Field invalid={!!errors().basePrice}>
+            <FieldLabel for="price-base">基本價 *</FieldLabel>
+            <Input
+              id="price-base"
+              value={basePrice()}
+              placeholder="1500.00"
+              onInput={(e) => setBasePrice(e.currentTarget.value)}
+            />
+            <FieldError>{errors().basePrice}</FieldError>
+          </Field>
 
-      <Field>
-        <FieldLabel for="price-seat">單席價 *</FieldLabel>
-        <Input
-          id="price-seat"
-          value={seatPrice()}
-          placeholder="200.00"
-          onInput={(e) => setSeatPrice(e.currentTarget.value)}
-        />
-      </Field>
+          <Field invalid={!!errors().seatPrice}>
+            <FieldLabel for="price-seat">單席價 *</FieldLabel>
+            <Input
+              id="price-seat"
+              value={seatPrice()}
+              placeholder="200.00"
+              onInput={(e) => setSeatPrice(e.currentTarget.value)}
+            />
+            <FieldError>{errors().seatPrice}</FieldError>
+          </Field>
 
-      <Field>
-        <FieldLabel for="price-currency">幣別</FieldLabel>
-        <Input
-          id="price-currency"
-          value={currency()}
-          placeholder="TWD"
-          onInput={(e) => setCurrency(e.currentTarget.value)}
-        />
-        <FieldDescription>留空＝TWD。</FieldDescription>
-      </Field>
+          <Field>
+            <FieldLabel for="price-currency">幣別</FieldLabel>
+            <Input
+              id="price-currency"
+              value={currency()}
+              placeholder="TWD"
+              onInput={(e) => setCurrency(e.currentTarget.value)}
+            />
+            <FieldDescription>留空＝TWD。</FieldDescription>
+          </Field>
+        </>
+      )}
     </WriteForm>
   );
 }
@@ -199,11 +206,12 @@ function EntitlementForm(props: { planCode: string; onClose: () => void; onDone:
           pending={mutation.isPending}
           error={mutation.isError ? describeError(mutation.error) : undefined}
           validate={() => {
-            if (featureCode() === "") return "請先選擇功能。";
+            const errs: Record<string, string> = {};
+            if (featureCode() === "") errs.feature = "請先選擇功能。";
             if (limitSet() && !/^\d+$/.test(limitValue().trim())) {
-              return "上限不得為負：請填不小於 0 的整數（負的上限等於把功能對所有用該方案的租戶關掉；不限額請不要勾「指定上限」）。";
+              errs.limit = "上限不得為負：請填不小於 0 的整數（負的上限等於把功能對所有用該方案的租戶關掉；不限額請不要勾「指定上限」）。";
             }
-            return undefined;
+            return Object.keys(errs).length > 0 ? errs : undefined;
           }}
           onSubmit={(reason) =>
             mutation.mutate({
@@ -215,51 +223,57 @@ function EntitlementForm(props: { planCode: string; onClose: () => void; onDone:
             })
           }
         >
-          <Field>
-            <FieldLabel for="entitlement-feature">功能 *</FieldLabel>
-            <Select
-              id="entitlement-feature"
-              value={featureCode()}
-              onChange={(e) => setFeatureCode(e.currentTarget.value)}
-            >
-              <option value="">請選擇</option>
-              <For each={data.features}>
-                {(f) => (
-                  <option value={f.code}>
-                    {f.code}（{f.type === "integer" ? "數量" : "開關"}）
-                  </option>
-                )}
-              </For>
-            </Select>
-            <Show when={featureCode() !== ""}>
-              <FieldDescription>
-                {current()
-                  ? `目前設定：${current()?.enabled ? "啟用" : "停用"}・${
-                      current()?.limitSet ? `上限 ${current()?.limitValue}` : "不限"
-                    }`
-                  : "目前設定：未設定（未開通）"}
-              </FieldDescription>
-            </Show>
-          </Field>
+          {(errors) => (
+            <>
+              <Field invalid={!!errors().feature}>
+                <FieldLabel for="entitlement-feature">功能 *</FieldLabel>
+                <Select
+                  id="entitlement-feature"
+                  value={featureCode()}
+                  onChange={(e) => setFeatureCode(e.currentTarget.value)}
+                >
+                  <FieldError>{errors().feature}</FieldError>
+                  <option value="">請選擇</option>
+                  <For each={data.features}>
+                    {(f) => (
+                      <option value={f.code}>
+                        {f.code}（{f.type === "integer" ? "數量" : "開關"}）
+                      </option>
+                    )}
+                  </For>
+                </Select>
+                <Show when={featureCode() !== ""}>
+                  <FieldDescription>
+                    {current()
+                      ? `目前設定：${current()?.enabled ? "啟用" : "停用"}・${
+                          current()?.limitSet ? `上限 ${current()?.limitValue}` : "不限"
+                        }`
+                      : "目前設定：未設定（未開通）"}
+                  </FieldDescription>
+                </Show>
+              </Field>
 
-          <div class="flex flex-wrap gap-4">
-            <LabelledCheckbox label="啟用" checked={enabled()} onCheckedChange={setEnabled} />
-            <LabelledCheckbox label="指定上限" checked={limitSet()} onCheckedChange={setLimitSet} />
-          </div>
+              <div class="flex flex-wrap gap-4">
+                <LabelledCheckbox label="啟用" checked={enabled()} onCheckedChange={setEnabled} />
+                <LabelledCheckbox label="指定上限" checked={limitSet()} onCheckedChange={setLimitSet} />
+              </div>
 
-          <Show when={limitSet()}>
-            <Field>
-              <FieldLabel for="entitlement-limit">上限值 *</FieldLabel>
-              <Input
-                id="entitlement-limit"
-                inputmode="numeric"
-                value={limitValue()}
-                placeholder="10"
-                onInput={(e) => setLimitValue(e.currentTarget.value)}
-              />
-              <FieldDescription>0 是有效上限（等於不能用）；不限額請不要勾「指定上限」。</FieldDescription>
-            </Field>
-          </Show>
+              <Show when={limitSet()}>
+                <Field invalid={!!errors().limit}>
+                  <FieldLabel for="entitlement-limit">上限值 *</FieldLabel>
+                  <Input
+                    id="entitlement-limit"
+                    inputmode="numeric"
+                    value={limitValue()}
+                    placeholder="10"
+                    onInput={(e) => setLimitValue(e.currentTarget.value)}
+                  />
+                  <FieldDescription>0 是有效上限（等於不能用）；不限額請不要勾「指定上限」。</FieldDescription>
+                  <FieldError>{errors().limit}</FieldError>
+                </Field>
+              </Show>
+            </>
+          )}
         </WriteForm>
       ))}
     </div>

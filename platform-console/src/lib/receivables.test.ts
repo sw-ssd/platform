@@ -49,6 +49,27 @@ describe("receivablesCsv", () => {
   it("沒有資料時只有表頭（不是空字串）", () => {
     expect(receivablesCsv([], NOW)).toBe("\uFEFF公司,方案,期別,金額,到期日,狀態\n");
   });
+
+  it("試算表公式注入字元開頭會被單引號 neutralize（= + - @ Tab CR）", () => {
+    const csv = receivablesCsv(
+      [
+        { ...row, companyName: "=cmd|' /C calc'!A0", status: "open", periodEnd: "2999-01-01T00:00:00Z" },
+        { ...row, companyName: "+cmd|' /C calc'!A0" },
+        { ...row, companyName: "-cmd|' /C calc'!A0" },
+        { ...row, companyName: "@SUM(A1:A10)" },
+        { ...row, companyName: "\t=hidden", periodEnd: "2999-01-01T00:00:00Z" },
+        { ...row, companyName: "\r=hidden", periodEnd: "2999-01-01T00:00:00Z" },
+      ],
+      NOW,
+    );
+    const lines = csv.split("\n");
+    expect(lines[1]).toBe("'=cmd|' /C calc'!A0,std,2,1500.00,2999-01-01T00:00:00Z,未付");
+    expect(lines[2]).toBe("'+cmd|' /C calc'!A0,std,2,1500.00,2026-10-31T00:00:00Z,逾期");
+    expect(lines[3]).toBe("'-cmd|' /C calc'!A0,std,2,1500.00,2026-10-31T00:00:00Z,逾期");
+    expect(lines[4]).toBe("'@SUM(A1:A10),std,2,1500.00,2026-10-31T00:00:00Z,逾期");
+    expect(lines[5]).toMatch(/^'\t=hidden,std,2,1500\.00,2999-01-01T00:00:00Z,未付$/);
+    expect(lines[6]).toMatch(/^"'\r=hidden",std,2,1500\.00,2999-01-01T00:00:00Z,未付$/);
+  });
 });
 
 describe("receivableStatus", () => {

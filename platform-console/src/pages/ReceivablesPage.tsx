@@ -3,10 +3,10 @@ import { createSignal, For, Show } from "solid-js";
 import { Badge } from "@ark-tailkit/ui/badge";
 import { Button } from "@ark-tailkit/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@ark-tailkit/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@ark-tailkit/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@ark-tailkit/ui/field";
 import { Input } from "@ark-tailkit/ui/input";
+import { Pagination } from "@ark-tailkit/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
-import { Pagination } from "../components/pagination";
 import { EmptyState, PageShell, queryBoundary } from "../components/page";
 import { Select } from "../components/select";
 import { WriteForm } from "../components/write";
@@ -91,36 +91,39 @@ function PaymentForm(props: { row: Receivable; onDone: () => void }) {
         const value = amount().trim();
         if (value === "") return undefined;
         if (!MONEY_PATTERN.test(value)) {
-          return "金額格式錯誤：請輸入數字，最多兩位小數（例：1500.00）；留空則採用期別快照金額。";
+          return { amount: "金額格式錯誤：請輸入數字，最多兩位小數（例：1500.00）；留空則採用期別快照金額。" };
         }
         // `AmountCents=0` 在後端的語意是「採用期別快照」，**不是**「本期不收」：
         // 填 0 會把整期記成已收（全額入帳）。要表達不收費得走別的路徑，不能靠這個欄位。
         if (Number(value) === 0) {
-          return "金額必須大於 0：後端把 0 當成「採用期別快照」，填 0 會把整期記成已收。";
+          return { amount: "金額必須大於 0：後端把 0 當成「採用期別快照」，填 0 會把整期記成已收。" };
         }
         return undefined;
       }}
       onSubmit={(reason) => mutation.mutate(reason)}
     >
-      <p class="text-sm text-muted-foreground">
-        {props.row.companyName}（方案 {props.row.planCode}）第 {props.row.periodNo} 期，
-        期末 {props.row.periodEnd}，期別金額 {props.row.amount}。
-      </p>
+      {(errors) => (
+        <>
+          <p class="text-sm text-muted-foreground">
+            {props.row.companyName}（方案 {props.row.planCode}）第 {props.row.periodNo} 期，
+            期末 {props.row.periodEnd}，期別金額 {props.row.amount}。
+          </p>
 
-      <Field>
-        <FieldLabel for="pay-amount">金額</FieldLabel>
-        <Input
-          id="pay-amount"
-          value={amount()}
-          placeholder={props.row.amount}
-          onInput={(e) => setAmount(e.currentTarget.value)}
-        />
-        <FieldDescription>
-          留空＝採用期別快照金額 {props.row.amount}；填了就必須大於 0（不支援部分付款；短收／溢收請記於備註）。
-        </FieldDescription>
-      </Field>
+          <Field invalid={!!errors().amount}>
+            <FieldLabel for="pay-amount">金額</FieldLabel>
+            <Input
+              id="pay-amount"
+              value={amount()}
+              placeholder={props.row.amount}
+              onInput={(e) => setAmount(e.currentTarget.value)}
+            />
+            <FieldDescription>
+              留空＝採用期別快照金額 {props.row.amount}；填了就必須大於 0（不支援部分付款；短收／溢收請記於備註）。
+            </FieldDescription>
+            <FieldError>{errors().amount}</FieldError>
+          </Field>
 
-      <Field>
+          <Field>
         <FieldLabel for="pay-provider">收款方式</FieldLabel>
         <Select
           id="pay-provider"
@@ -190,6 +193,8 @@ function PaymentForm(props: { row: Receivable; onDone: () => void }) {
         <Input id="pay-note" value={note()} onInput={(e) => setNote(e.currentTarget.value)} />
         <FieldDescription>短收／溢收的差異記在這裡，不會改變期別金額。</FieldDescription>
       </Field>
+        </>
+      )}
     </WriteForm>
   );
 }
@@ -304,8 +309,8 @@ export default function ReceivablesPage() {
           <Pagination
             page={page()}
             pageSize={data.pagination?.pageSize ?? PAGE_SIZE}
-            total={data.pagination?.total ?? data.rows.length}
-            onPage={setPage}
+            count={Number(data.pagination?.total ?? data.rows.length)}
+            onPageChange={setPage}
           />
         </div>
       ))}

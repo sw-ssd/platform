@@ -19,6 +19,14 @@ export type ReceivableRow = {
 
 const HEADER = ["公司", "方案", "期別", "金額", "到期日", "狀態"] as const;
 
+/** 試算表公式注入防護：欄位開頭若為 `= + - @` 或 Tab/CR，前面加單引號 neutralize。 */
+function sanitizeCsvCell(value: string): string {
+  if (/^[\t\r=+\-@]/.test(value)) {
+    return `'${value}`;
+  }
+  return value;
+}
+
 /** 狀態欄：後端只回 `open`（未付）；期末已過即逾期，其餘狀態原樣呈現（後端才是定義者）。 */
 export function receivableStatus(
   row: { status: string; periodEnd: string },
@@ -53,7 +61,12 @@ export function receivablesCsv(rows: readonly ReceivableRow[], now = Date.now())
     "\uFEFF" +
     table
       .map((cells) =>
-        cells.map((v) => (/[",\r\n]|^\s|\s$/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)).join(","),
+        cells
+          .map((v) => {
+            const safe = sanitizeCsvCell(v);
+            return /[",\r\n]|^\s|\s$/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
+          })
+          .join(","),
       )
       .join("\n") +
     "\n"

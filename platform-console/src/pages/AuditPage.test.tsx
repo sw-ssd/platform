@@ -86,8 +86,8 @@ describe("AuditPage", () => {
 
     await waitFor(() => expect(auditCalls(calls)).toHaveLength(1));
     expect(lastBody(calls)).toEqual({ page: 1, pageSize: 20 });
-    // 分頁文字被 Solid 的動態節點切開，故比對整段文字。
-    await screen.findByText((text) => text === "第 1 / 3 頁（共 41 筆）");
+    // 新 pagination 不顯示「第 X / Y 頁（共 N 筆）」，只顯示頁碼與上下頁按鈕。
+    await screen.findByRole("button", { name: "第 1 頁" });
   });
 
   it("篩選與翻頁都進請求參數（篩選後回到第 1 頁）", async () => {
@@ -135,7 +135,6 @@ describe("AuditPage", () => {
     // 打錯字（plna）不該看起來像「平台從來沒被寫入過」：要說出套了什麼條件。
     await screen.findByText(/沒有符合條件的紀錄（目標類型「plna」、目標代碼「7」）/);
     expect(screen.queryByText(/尚無平台操作紀錄/)).toBeNull();
-    expect(screen.getByText(/第 1 \/ 1 頁（共 0 筆）/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "下一頁" })).toBeTruthy();
   });
 

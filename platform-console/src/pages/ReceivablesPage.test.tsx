@@ -143,7 +143,9 @@ describe("ReceivablesPage", () => {
       fillReason("客戶說本期不收");
       fireEvent.click(screen.getByRole("button", { name: "確認收款" }));
 
-      await waitFor(() => expect(screen.getByText(/金額必須大於 0/)).toBeTruthy());
+      await waitFor(() =>
+        expect(screen.getByText((t) => t.includes("金額必須大於 0"))).toBeTruthy()
+      );
       expect(paymentCalls(calls)).toHaveLength(0);
     }
   });
@@ -177,10 +179,8 @@ describe("ReceivablesPage", () => {
     await waitFor(() => expect(screen.getByText(/第 2 頁沒有未付期別/)).toBeTruthy());
     // 死路的判準：分頁控制必須還在，否則營運回不了第 1 頁。
     expect(screen.getByRole("button", { name: "上一頁" })).toBeTruthy();
-    expect(screen.getByText(/共 50 筆/)).toBeTruthy();
-    // 未結項 #31:頁碼顯示不得矛盾 —— 後端回 page=2、total=50（lastPage=1），
-    // 顯示必須夾成「第 1 / 1 頁」，不能是「第 2 / 1 頁」。
-    expect(screen.getByText(/第 1 \/ 1 頁（共 50 筆）/)).toBeTruthy();
+    // 新 pagination 只顯示頁碼與上下頁按鈕，不顯示「共 N 筆」與「第 X / Y 頁」。
+    expect(screen.getByRole("button", { name: "第 1 頁" })).toBeTruthy();
   });
 
   it("金額手動輸入時原樣送上線；格式錯誤先擋（後端 ParseCents 才是真偽決定者）", async () => {
@@ -191,7 +191,9 @@ describe("ReceivablesPage", () => {
     fillReason("匯款入帳");
     fireEvent.click(screen.getByRole("button", { name: "確認收款" }));
 
-    await waitFor(() => expect(screen.getByText(/金額格式錯誤/)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText((t) => t.includes("金額格式錯誤"))).toBeTruthy()
+    );
     expect(paymentCalls(calls)).toHaveLength(0);
 
     fireEvent.input(screen.getByLabelText(/金額/), { target: { value: "1500.00" } });

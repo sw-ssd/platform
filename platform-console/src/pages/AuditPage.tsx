@@ -3,8 +3,8 @@ import { createSignal, For, Show } from "solid-js";
 import { Button } from "@ark-tailkit/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@ark-tailkit/ui/field";
 import { Input } from "@ark-tailkit/ui/input";
+import { Pagination } from "@ark-tailkit/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
-import { Pagination } from "../components/pagination";
 import { EmptyState, PageShell, queryBoundary } from "../components/page";
 import { platform } from "../lib/api";
 
@@ -190,8 +190,8 @@ export default function AuditPage() {
           <Pagination
             page={query().page}
             pageSize={data.pagination?.pageSize ?? PAGE_SIZE}
-            total={data.pagination?.total ?? data.entries.length}
-            onPage={(page) => setQuery({ ...query(), page })}
+            count={Number(data.pagination?.total ?? data.entries.length)}
+            onPageChange={(page) => setQuery({ ...query(), page })}
           />
         </div>
       ))}

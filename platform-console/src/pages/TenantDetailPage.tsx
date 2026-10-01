@@ -5,7 +5,7 @@ import { Badge } from "@ark-tailkit/ui/badge";
 import { Button } from "@ark-tailkit/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ark-tailkit/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@ark-tailkit/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@ark-tailkit/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@ark-tailkit/ui/field";
 import { Input } from "@ark-tailkit/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
 import { LabelledCheckbox } from "../components/labelled-checkbox";
@@ -67,17 +67,18 @@ function SetOverrideForm(props: { companyId: string; onClose: () => void; onDone
     },
   }));
 
-  const validate = (): string | undefined => {
-    if (featureCode().trim() === "") return "功能代碼必填（例：limit.seats、feature.printing）。";
+  const validate = (): Record<string, string> | undefined => {
+    const errs: Record<string, string> = {};
+    if (featureCode().trim() === "") errs.feature = "功能代碼必填（例：limit.seats、feature.printing）。";
     if (!enabledSet() && !limitSet()) {
-      return "至少要指定一個維度：勾「指定啟用」或「指定上限」（兩個都沒有的例外沒有任何效果）。";
+      errs.dimension = "至少要指定一個維度：勾「指定啟用」或「指定上限」（兩個都沒有的例外沒有任何效果）。";
     }
     if (owner().trim() === "") {
-      return "負責人必填：例外是有人承諾的，沒有承諾者就沒有可追溯的責任。";
+      errs.owner = "負責人必填：例外是有人承諾的，沒有承諾者就沒有可追溯的責任。";
     }
     if (limitSet() && !/^\d+$/.test(limitValue().trim())) {
       // 負的上限在判定層等於「任何用量都超額」＝把功能永久關掉；不限額請用「不指定上限」。
-      return "上限不得為負：請填不小於 0 的整數（負的上限在判定上等於任何用量都超額；不限額請不要勾「指定上限」）。";
+      errs.limit = "上限不得為負：請填不小於 0 的整數（負的上限在判定上等於任何用量都超額；不限額請不要勾「指定上限」）。";
     }
     // 未結項 #26 後半：只填日期（2027/01/01）在 JS 是合法日期，但後端用 time.Parse(time.RFC3339)
     // 會擋 —— 訊息卻說「格式須為 RFC3339」，而檢查用的是寬鬆的 new Date。與開通表單同一個
@@ -85,9 +86,9 @@ function SetOverrideForm(props: { companyId: string; onClose: () => void; onDone
     const OVERRIDE_RFC3339 =
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
     if (expiresAt().trim() !== "" && !OVERRIDE_RFC3339.test(expiresAt().trim())) {
-      return "到期日請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不過期（只填日期後端會擋）。";
+      errs.expires = "到期日請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不過期（只填日期後端會擋）。";
     }
-    return undefined;
+    return Object.keys(errs).length > 0 ? errs : undefined;
   };
 
   return (
@@ -110,59 +111,70 @@ function SetOverrideForm(props: { companyId: string; onClose: () => void; onDone
         })
       }
     >
-      <Field>
-        <FieldLabel for="override-feature">功能代碼 *</FieldLabel>
-        <Input
-          id="override-feature"
-          value={featureCode()}
-          placeholder="limit.seats"
-          onInput={(e) => setFeatureCode(e.currentTarget.value)}
-        />
-      </Field>
+      {(errors) => (
+        <>
+          <Field invalid={!!errors().feature}>
+            <FieldLabel for="override-feature">功能代碼 *</FieldLabel>
+            <Input
+              id="override-feature"
+              value={featureCode()}
+              placeholder="limit.seats"
+              onInput={(e) => setFeatureCode(e.currentTarget.value)}
+            />
+            <FieldError>{errors().feature}</FieldError>
+          </Field>
 
-      <div class="flex flex-wrap gap-4">
-        <LabelledCheckbox label="指定啟用" checked={enabledSet()} onCheckedChange={setEnabledSet} />
-        <Show when={enabledSet()}>
-          <LabelledCheckbox label="啟用" checked={enabled()} onCheckedChange={setEnabled} />
-        </Show>
-      </div>
+          <div class="flex flex-wrap gap-4">
+            <LabelledCheckbox label="指定啟用" checked={enabledSet()} onCheckedChange={setEnabledSet} />
+            <Show when={enabledSet()}>
+              <LabelledCheckbox label="啟用" checked={enabled()} onCheckedChange={setEnabled} />
+            </Show>
+          </div>
 
-      <LabelledCheckbox label="指定上限" checked={limitSet()} onCheckedChange={setLimitSet} />
+          <LabelledCheckbox label="指定上限" checked={limitSet()} onCheckedChange={setLimitSet} />
+          <Show when={errors().dimension}>
+            <p class="text-sm font-medium text-destructive">{errors().dimension}</p>
+          </Show>
 
-      <Show when={limitSet()}>
-        <Field>
-          <FieldLabel for="override-limit">上限值 *</FieldLabel>
-          <Input
-            id="override-limit"
-            inputmode="numeric"
-            value={limitValue()}
-            placeholder="30"
-            onInput={(e) => setLimitValue(e.currentTarget.value)}
-          />
-          <FieldDescription>0 是有效上限（等於不能用）；不限額請不要勾「指定上限」。</FieldDescription>
-        </Field>
-      </Show>
+          <Show when={limitSet()}>
+            <Field invalid={!!errors().limit}>
+              <FieldLabel for="override-limit">上限值 *</FieldLabel>
+              <Input
+                id="override-limit"
+                inputmode="numeric"
+                value={limitValue()}
+                placeholder="30"
+                onInput={(e) => setLimitValue(e.currentTarget.value)}
+              />
+              <FieldDescription>0 是有效上限（等於不能用）；不限額請不要勾「指定上限」。</FieldDescription>
+              <FieldError>{errors().limit}</FieldError>
+            </Field>
+          </Show>
 
-      <Field>
-        <FieldLabel for="override-owner">負責人（平台側承諾者）*</FieldLabel>
-        <Input
-          id="override-owner"
-          value={owner()}
-          placeholder="ops@example.com"
-          onInput={(e) => setOwner(e.currentTarget.value)}
-        />
-      </Field>
+          <Field invalid={!!errors().owner}>
+            <FieldLabel for="override-owner">負責人（平台側承諾者）*</FieldLabel>
+            <Input
+              id="override-owner"
+              value={owner()}
+              placeholder="ops@example.com"
+              onInput={(e) => setOwner(e.currentTarget.value)}
+            />
+            <FieldError>{errors().owner}</FieldError>
+          </Field>
 
-      <Field>
-        <FieldLabel for="override-expires">到期日（選填）</FieldLabel>
-        <Input
-          id="override-expires"
-          value={expiresAt()}
-          placeholder="2027-01-01T00:00:00Z"
-          onInput={(e) => setExpiresAt(e.currentTarget.value)}
-        />
-        <FieldDescription>留空＝不過期；已過期的例外不列入生效值。</FieldDescription>
-      </Field>
+          <Field invalid={!!errors().expires}>
+            <FieldLabel for="override-expires">到期日（選填）</FieldLabel>
+            <Input
+              id="override-expires"
+              value={expiresAt()}
+              placeholder="2027-01-01T00:00:00Z"
+              onInput={(e) => setExpiresAt(e.currentTarget.value)}
+            />
+            <FieldDescription>留空＝不過期；已過期的例外不列入生效值。</FieldDescription>
+            <FieldError>{errors().expires}</FieldError>
+          </Field>
+        </>
+      )}
     </WriteForm>
   );
 }
@@ -318,28 +330,30 @@ function CreateSubscriptionForm(props: {
   // 前端若用 `new Date()` 判形狀，就會放行一個註定失敗的輸入，所以要照 RFC3339 的形狀判。
   const RFC3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
-  const validate = (): string | undefined => {
+  const validate = (): Record<string, string> | undefined => {
+    const errs: Record<string, string> = {};
     if (planCode() === "") {
-      return "請選擇方案：合約必須掛在一個賣得動（上架且有該週期價目）的方案上。";
+      errs.plan = "請選擇方案：合約必須掛在一個賣得動（上架且有該週期價目）的方案上。";
     }
     if (!/^\d+$/.test(seatCount().trim()) || Number(seatCount().trim()) < 1) {
-      return "席位數必須是不小於 1 的整數：0 席的訂閱等於停用，那該走取消。";
+      errs.seats = "席位數必須是不小於 1 的整數：0 席的訂閱等於停用，那該走取消。";
     }
     const trial = trialEndsAt().trim();
-    if (trial === "") return undefined;
-    if (!RFC3339.test(trial)) {
-      return "試用到期請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不試用（只填日期後端會擋）。";
+    if (trial !== "") {
+      if (!RFC3339.test(trial)) {
+        errs.trial = "試用到期請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不試用（只填日期後端會擋）。";
+      } else {
+        // 未來的試用才有意義（過去的試用等於一開通就過期），而**超過 MAX_TRIAL_DAYS 天**後端一律拒
+        // （試用是不收錢地放行全部權益）。兩者都在這裡先講清楚，不讓 operator 白跑一趟。
+        const at = new Date(trial).getTime();
+        if (at <= Date.now()) {
+          errs.trial = "試用到期必須是未來時間：過去的試用等於一開通就過期。";
+        } else if (at > Date.now() + MAX_TRIAL_DAYS * 24 * 60 * 60 * 1000) {
+          errs.trial = `試用到期不得超過 ${MAX_TRIAL_DAYS} 天：試用是不收錢地放行全部權益，後端會拒（SYS-1001）。`;
+        }
+      }
     }
-    // 未來的試用才有意義（過去的試用等於一開通就過期），而**超過 MAX_TRIAL_DAYS 天**後端一律拒
-    // （試用是不收錢地放行全部權益）。兩者都在這裡先講清楚，不讓 operator 白跑一趟。
-    const at = new Date(trial).getTime();
-    if (at <= Date.now()) {
-      return "試用到期必須是未來時間：過去的試用等於一開通就過期。";
-    }
-    if (at > Date.now() + MAX_TRIAL_DAYS * 24 * 60 * 60 * 1000) {
-      return `試用到期不得超過 ${MAX_TRIAL_DAYS} 天：試用是不收錢地放行全部權益，後端會拒（SYS-1001）。`;
-    }
-    return undefined;
+    return Object.keys(errs).length > 0 ? errs : undefined;
   };
 
   return (
@@ -358,78 +372,85 @@ function CreateSubscriptionForm(props: {
         })
       }
     >
-      <Field>
-        <FieldLabel for="create-plan">方案 *</FieldLabel>
-        <Select
-          id="create-plan"
-          value={planCode()}
-          onChange={(e) => setPlanCode(e.currentTarget.value)}
-        >
-          <option value="">請選擇…</option>
-          <For each={plans.data?.plans ?? []}>
-            {(plan) => (
-              <option value={plan.code}>
-                {plan.name || plan.code}
-                {plan.status === "active" ? "" : `（${plan.status}）`}
-              </option>
-            )}
-          </For>
-        </Select>
-        <FieldDescription>
-          已歸檔的方案不得指派；該週期沒有生效價目時後端會拒絕（不會開出 0 元期別）。
-        </FieldDescription>
-        {/* 清單載不到時說清楚：空的下拉選單會被讀成「沒有方案可選」，那不是事實。 */}
-        <Show when={plans.isError}>
-          <p role="alert" class="text-sm font-medium text-destructive">
-            {describeError(plans.error)}（沒有方案清單就無法選擇方案）
-          </p>
-        </Show>
-      </Field>
+      {(errors) => (
+        <>
+          <Field invalid={!!errors().plan}>
+            <FieldLabel for="create-plan">方案 *</FieldLabel>
+            <Select
+              id="create-plan"
+              value={planCode()}
+              onChange={(e) => setPlanCode(e.currentTarget.value)}
+            >
+              <option value="">請選擇…</option>
+              <For each={plans.data?.plans ?? []}>
+                {(plan) => (
+                  <option value={plan.code}>
+                    {plan.name || plan.code}
+                    {plan.status === "active" ? "" : `（${plan.status}）`}
+                  </option>
+                )}
+              </For>
+            </Select>
+            <FieldDescription>
+              已歸檔的方案不得指派；該週期沒有生效價目時後端會拒絕（不會開出 0 元期別）。
+            </FieldDescription>
+            <FieldError>{errors().plan}</FieldError>
+            {/* 清單載不到時說清楚：空的下拉選單會被讀成「沒有方案可選」，那不是事實。 */}
+            <Show when={plans.isError}>
+              <p role="alert" class="text-sm font-medium text-destructive">
+                {describeError(plans.error)}（沒有方案清單就無法選擇方案）
+              </p>
+            </Show>
+          </Field>
 
-      <Field>
-        <FieldLabel for="create-cycle">計費週期 *</FieldLabel>
-        <Select
-          id="create-cycle"
-          value={billingCycle()}
-          onChange={(e) => setBillingCycle(e.currentTarget.value)}
-        >
-          <option value="monthly">月繳</option>
-          <option value="yearly">年繳</option>
-        </Select>
-        <FieldDescription>決定第一期的長度（月 ＋1 月、年 ＋1 年）與取用的價目。</FieldDescription>
-      </Field>
+          <Field>
+            <FieldLabel for="create-cycle">計費週期 *</FieldLabel>
+            <Select
+              id="create-cycle"
+              value={billingCycle()}
+              onChange={(e) => setBillingCycle(e.currentTarget.value)}
+            >
+              <option value="monthly">月繳</option>
+              <option value="yearly">年繳</option>
+            </Select>
+            <FieldDescription>決定第一期的長度（月 ＋1 月、年 ＋1 年）與取用的價目。</FieldDescription>
+          </Field>
 
-      <Field>
-        <FieldLabel for="create-seats">席位數 *</FieldLabel>
-        <Input
-          id="create-seats"
-          inputmode="numeric"
-          value={seatCount()}
-          placeholder="3"
-          onInput={(e) => setSeatCount(e.currentTarget.value)}
-        />
-        <FieldDescription>
-          第一期金額＝方案基本價 ＋ 席位數 × 單席價（當期生效價的快照）。日後可用「調整席位」變更。
-        </FieldDescription>
-      </Field>
+          <Field invalid={!!errors().seats}>
+            <FieldLabel for="create-seats">席位數 *</FieldLabel>
+            <Input
+              id="create-seats"
+              inputmode="numeric"
+              value={seatCount()}
+              placeholder="3"
+              onInput={(e) => setSeatCount(e.currentTarget.value)}
+            />
+            <FieldDescription>
+              第一期金額＝方案基本價 ＋ 席位數 × 單席價（當期生效價的快照）。日後可用「調整席位」變更。
+            </FieldDescription>
+            <FieldError>{errors().seats}</FieldError>
+          </Field>
 
-      <Field>
-        <FieldLabel for="create-trial">試用到期（選填）</FieldLabel>
-        <Input
-          id="create-trial"
-          value={trialEndsAt()}
-          placeholder="2026-10-05T00:00:00Z"
-          onInput={(e) => {
-            trialTouchedByOperator = true;
-            setTrialEndsAt(e.currentTarget.value);
-          }}
-        />
-        <FieldDescription>
-          預設帶入營運參數的試用天數（trial_days）；留空＝直接生效（active）。填了（必須是未來且不超過
-          {MAX_TRIAL_DAYS} 天）→ 狀態為試用中（trialing），到期後排程轉為逾期、由收款帶回 active。
-          無論試用與否都會開出第一期。
-        </FieldDescription>
-      </Field>
+          <Field invalid={!!errors().trial}>
+            <FieldLabel for="create-trial">試用到期（選填）</FieldLabel>
+            <Input
+              id="create-trial"
+              value={trialEndsAt()}
+              placeholder="2026-10-05T00:00:00Z"
+              onInput={(e) => {
+                trialTouchedByOperator = true;
+                setTrialEndsAt(e.currentTarget.value);
+              }}
+            />
+            <FieldDescription>
+              預設帶入營運參數的試用天數（trial_days）；留空＝直接生效（active）。填了（必須是未來且不超過
+              {MAX_TRIAL_DAYS} 天）→ 狀態為試用中（trialing），到期後排程轉為逾期、由收款帶回 active。
+              無論試用與否都會開出第一期。
+            </FieldDescription>
+            <FieldError>{errors().trial}</FieldError>
+          </Field>
+        </>
+      )}
     </WriteForm>
   );
 }

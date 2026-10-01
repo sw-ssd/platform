@@ -1,5 +1,5 @@
 import type { JSX } from "solid-js";
-import { Button } from "@ui/button";
+import { Button } from "@ark-tailkit/ui/button";
 
 /**
  * 後端分頁的控制列。

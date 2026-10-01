@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/solid-router";
 import { For, type ParentProps } from "solid-js";
-import { Button } from "@ui/button";
+import { Button } from "@ark-tailkit/ui/button";
 import { logout } from "./lib/session";
 
 /** 導覽：console 的功能只有這五頁（登入頁不在此列）。 */

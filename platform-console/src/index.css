@@ -1,4 +1,4 @@
-/* 設計 tokens 來自 vendored 的 @salesorder/ui（platform 倉自含；不依賴產品倉 frontend）。
+/* 設計 tokens 來自 @ark-tailkit/ui（獨立私有 package，由 pnpm 從 Forgejo 安裝；發布前 file: 橋接）。
    元件掃描同源：UI_DIR 下的元件在 Vite root 之外，需 @source 明示（否則 class 不產出）。 */
-@import "@ui/tokens.css";
+@import "@ark-tailkit/ui/tokens.css";
 @source "../packages/ui/src/ui";

@@ -7,8 +7,6 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "paths": {
-      "@ui": ["../packages/ui/src/ui/index.ts"],
-      "@ui/*": ["../packages/ui/src/ui/*"]
     },
     "types": ["vite/client"],
     "noEmit": true,

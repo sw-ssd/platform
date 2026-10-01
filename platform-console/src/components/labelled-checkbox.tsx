@@ -1,5 +1,5 @@
 import type { JSX } from "solid-js";
-import { Checkbox } from "@ui/checkbox";
+import { Checkbox } from "@ark-tailkit/ui/checkbox";
 
 /**
  * 帶可見文字的勾選框。

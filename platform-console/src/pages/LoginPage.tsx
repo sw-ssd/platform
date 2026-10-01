@@ -1,4 +1,4 @@
-import { buttonVariants } from "@ui/button";
+import { buttonVariants } from "@ark-tailkit/ui/button";
 import { loginUrl } from "../lib/api";
 
 /**

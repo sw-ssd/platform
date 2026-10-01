@@ -3,19 +3,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 import solid from "vite-plugin-solid";
 
-// UI 元件庫（vendored @salesorder/ui，位於 platform 倉內）：console 只共用元件庫，
-// 不共用產品 SPA 的路由與路由守衛（那兩者由 console 自己的 router.tsx / guard.ts 取代；
-// S11：租戶 SPA 不得出現平台能力）。
-const UI_DIR = path.resolve(import.meta.dirname, "../packages/ui/src/ui");
-
+// UI 元件庫（@ark-tailkit/ui）現為獨立私有 package，由 pnpm 從 Forgejo 安裝
+// （發布前以 file:../ark-tailkit-ui 橋接），不再 vendored 於本倉。
 export default defineConfig({
   plugins: [tailwindcss(), solid()],
   resolve: {
-    // console 自家程式碼一律相對路徑匯入（`./lib/api`）；`@ui` alias 只為讓元件庫入口原樣解析。
-    alias: {
-      "@ui/": `${UI_DIR}/`,
-      "@ui": path.join(UI_DIR, "index.ts"),
-    },
+    // console 自家程式碼一律相對路徑匯入；元件庫經由 @ark-tailkit/ui 從 node_modules 解析。
+    alias: {},
   },
   server: {
     port: 5173,

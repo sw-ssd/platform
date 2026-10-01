@@ -8,57 +8,11 @@ importers:
 
   .: {}
 
-  packages/ui:
-    dependencies:
-      '@ark-ui/solid':
-        specifier: ^5.39.2
-        version: 5.39.2(solid-js@1.9.15)
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      lucide-solid:
-        specifier: ^1.38.0
-        version: 1.49.0(solid-js@1.9.15)
-      solid-js:
-        specifier: ^1.9.15
-        version: 1.9.15
-      tailwind-merge:
-        specifier: ^3.6.0
-        version: 3.7.0
-    devDependencies:
-      '@solidjs/testing-library':
-        specifier: ^0.8.10
-        version: 0.8.10(solid-js@1.9.15)
-      '@tailwindcss/vite':
-        specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1(jiti@2.7.0))
-      jsdom:
-        specifier: ^26.0.0
-        version: 26.1.0(supports-color@7.2.0)
-      tailwindcss:
-        specifier: ^4.3.3
-        version: 4.3.3
-      typescript:
-        specifier: npm:@typescript/typescript6@^6.0.2
-        version: '@typescript/typescript6@6.0.2'
-      typescript-eslint:
-        specifier: ^8.68.0
-        version: 8.71.0(@typescript/typescript6@6.0.2)(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
-      vite:
-        specifier: ^8.2.2
-        version: 8.3.1(jiti@2.7.0)
-      vite-plugin-solid:
-        specifier: ^2.11.14
-        version: 2.11.14(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.3.1(jiti@2.7.0))
-      vitest:
-        specifier: ^4.1.11
-        version: 4.1.11(jsdom@26.1.0(supports-color@7.2.0))(vite@8.3.1(jiti@2.7.0))
-
   platform-console:
     dependencies:
+      '@ark-tailkit/ui':
+        specifier: file:../../ark-tailkit-ui
+        version: file:../ark-tailkit-ui
       '@ark-ui/solid':
         specifier: ^5.39.2
         version: 5.39.2(solid-js@1.9.15)
@@ -71,9 +25,6 @@ importers:
       '@connectrpc/connect-web':
         specifier: ^2.2.0
         version: 2.2.0(@bufbuild/protobuf@2.16.0)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.16.0))
-      '@salesorder/ui':
-        specifier: workspace:*
-        version: link:../packages/ui
       '@tanstack/solid-query':
         specifier: ^5.102.8
         version: 5.104.0(solid-js@1.9.15)
@@ -140,6 +91,9 @@ importers:
         version: 4.1.11(jsdom@26.1.0(supports-color@7.2.0))(vite@8.3.1(jiti@2.7.0))
 
 packages:
+
+  '@ark-tailkit/ui@file:../ark-tailkit-ui':
+    resolution: {directory: ../ark-tailkit-ui, type: directory}
 
   '@ark-ui/solid@5.39.2':
     resolution: {integrity: sha512-J7NMQTix+INJ7kGDVpuQegkprAw+iB1am1ZLjcSclCkNrSOw+zKU17YTW2eMYUlh7ARe2vusOl/20EiaDdUViA==}
@@ -2151,6 +2105,15 @@ packages:
     engines: {node: '>=10'}
 
 snapshots:
+
+  '@ark-tailkit/ui@file:../ark-tailkit-ui':
+    dependencies:
+      '@ark-ui/solid': 5.39.2(solid-js@1.9.15)
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      lucide-solid: 1.49.0(solid-js@1.9.15)
+      solid-js: 1.9.15
+      tailwind-merge: 3.7.0
 
   '@ark-ui/solid@5.39.2(solid-js@1.9.15)':
     dependencies:

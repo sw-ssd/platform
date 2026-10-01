@@ -1,6 +1,6 @@
 import type { CreateQueryResult } from "@tanstack/solid-query";
 import { Match, Switch, type JSX } from "solid-js";
-import { Spinner } from "@ui/spinner";
+import { Spinner } from "@ark-tailkit/ui/spinner";
 import { describeError } from "../lib/errors";
 
 /** 頁面外框：console 的每個頁面都是「標題 + 說明 + 內容」，統一在這裡給。 */

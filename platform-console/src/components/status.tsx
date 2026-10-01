@@ -1,5 +1,5 @@
 import { Match, Switch } from "solid-js";
-import { Badge } from "@ui/badge";
+import { Badge } from "@ark-tailkit/ui/badge";
 
 /**
  * 訂閱狀態徽章：文案與色階只在此處定義（後端回的是 `platform.v1.TenantSummary.subscription_status`

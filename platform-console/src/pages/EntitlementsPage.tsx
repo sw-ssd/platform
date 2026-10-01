@@ -1,7 +1,7 @@
 import { createQuery } from "@tanstack/solid-query";
 import { For, Show } from "solid-js";
-import { Badge } from "@ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/table";
+import { Badge } from "@ark-tailkit/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
 import { EmptyState, PageShell, queryBoundary } from "../components/page";
 import { platform } from "../lib/api";
 import type { Feature, FeatureEntitlement } from "../lib/proto/platform/v1/platform_pb";

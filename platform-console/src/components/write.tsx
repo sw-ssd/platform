@@ -1,8 +1,8 @@
 import { createSignal, Show, type JSX } from "solid-js";
-import { Button, buttonVariants } from "@ui/button";
-import { DialogClose, DialogFooter } from "@ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@ui/field";
-import { Input } from "@ui/input";
+import { Button, buttonVariants } from "@ark-tailkit/ui/button";
+import { DialogClose, DialogFooter } from "@ark-tailkit/ui/dialog";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@ark-tailkit/ui/field";
+import { Input } from "@ark-tailkit/ui/input";
 
 /**
  * 平台寫入的稽核必填：後端 `platformReason` 對每個寫入 RPC 都擋空白 reason。

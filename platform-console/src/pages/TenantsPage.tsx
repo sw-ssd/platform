@@ -1,12 +1,12 @@
 import { createQuery } from "@tanstack/solid-query";
 import { Link } from "@tanstack/solid-router";
 import { createSignal, For, Show } from "solid-js";
-import { Badge } from "@ui/badge";
-import { Button } from "@ui/button";
-import { Field, FieldLabel } from "@ui/field";
-import { Input } from "@ui/input";
-import { Pagination, PaginationSummary } from "@ui/pagination";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/table";
+import { Badge } from "@ark-tailkit/ui/badge";
+import { Button } from "@ark-tailkit/ui/button";
+import { Field, FieldLabel } from "@ark-tailkit/ui/field";
+import { Input } from "@ark-tailkit/ui/input";
+import { Pagination, PaginationSummary } from "@ark-tailkit/ui/pagination";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
 import { EmptyState, PageShell, queryBoundary } from "../components/page";
 import { Select } from "../components/select";
 import { SUBSCRIPTION_STATUSES, SubscriptionBadge } from "../components/status";

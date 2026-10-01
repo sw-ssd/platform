@@ -1,9 +1,9 @@
 import { createQuery } from "@tanstack/solid-query";
 import { createSignal, For, Show } from "solid-js";
-import { Button } from "@ui/button";
-import { Field, FieldDescription, FieldLabel } from "@ui/field";
-import { Input } from "@ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/table";
+import { Button } from "@ark-tailkit/ui/button";
+import { Field, FieldDescription, FieldLabel } from "@ark-tailkit/ui/field";
+import { Input } from "@ark-tailkit/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ark-tailkit/ui/table";
 import { Pagination } from "../components/pagination";
 import { EmptyState, PageShell, queryBoundary } from "../components/page";
 import { platform } from "../lib/api";

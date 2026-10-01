@@ -6,8 +6,6 @@
     "strict": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "paths": {
-    },
     "types": ["vite/client"],
     "noEmit": true,
     "skipLibCheck": true,

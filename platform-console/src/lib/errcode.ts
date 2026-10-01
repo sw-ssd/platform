@@ -1,5 +1,5 @@
-// 由 `go generate ./internal/errcode` 產生（來源：backend/internal/errcode/codes_*.go），請勿手改。
-// 碼的唯一真相來源是後端 registry；本檔只是投影，CI 會驗證同步（.github/workflows/ci.yml）。
+// 由 sales-order-dispatch/backend 的 errcode generator 產生（來源：backend/internal/errcode/codes_*.go），請勿手改。
+// 碼的唯一真相來源是 product 倉後端 registry；本檔只是投影，platform 倉 CI 目前不驗證同步。
 
 /** 對外錯誤碼（`ErrorInfo.code`；形如 "域-4位數"）。 */
 export const ERR_AUTH_REGISTRATION_REQUIRED = "AUTH-3001";

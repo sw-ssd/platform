@@ -17,6 +17,9 @@ tasks:
     desc: 全部測試
     cmd: pnpm test
   gen:
-    desc: proto 生成（於 backend 執行；含 console 的 TS 輸出與 errcode）
-    dir: ../backend
-    cmd: task proto:gen
+    desc: proto / errcode 生成（來源在 product 倉 backend，此處僅為文件入口）
+    cmds:
+      - echo "產生檔來源位於 sales-order-dispatch/backend："
+      - echo "  - proto: task proto:gen （輸出路徑含 platform-console/src/lib/proto）"
+      - echo "  - errcode: task errcode:gen （輸出路徑含 platform-console/src/lib/errcode.ts）"
+      - echo "請於 product 倉執行後，將變更複製/提交回本倉。"

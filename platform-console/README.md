@@ -21,7 +21,7 @@ pnpm -C platform-console build      # tsc --noEmit && vite build
 
 `task console:dev|build|typecheck|lint|test` 是同一組指令（root Taskfile 的 include）。
 
-CI：`.github/workflows/ci.yml` 的 **`platform-console` job** 跑同一組四條（`typecheck`／`lint`／`test`／`build`）；兩個產生檔（`src/lib/proto/**`、`src/lib/errcode.ts`）的冪等閘門在 **`go` job**（`go generate`／`buf generate` 後比對 `git diff` ＋ `git status --porcelain`，路徑清單已含本目錄）。
+CI：`.github/workflows/ci.yml` 的 **`platform-console` job** 跑同一組四條（`typecheck`／`lint`／`test`／`build`）。兩個產生檔（`src/lib/proto/**`、`src/lib/errcode.ts`）的來源在 **sales-order-dispatch/backend**，console 倉目前僅追蹤輸出、不自帶冪等閘門。
 
 ## 認證（operator session，沿用後端既有機制，不另立一套）
 
@@ -53,7 +53,7 @@ CI：`.github/workflows/ci.yml` 的 **`platform-console` job** 跑同一組四�
 1. **同 origin**（或至少同 site）：正式環境由反代把 **`/platform`**（含登入端點與 RPC）指到 API；dev 用 Vite proxy（見下節）。
 2. **不要跨來源直連 API**：後端 CORS 允許清單只有 `http://localhost:3000`（`server.go:112`），console 的 dev port 是 5173；cookie 是 `SameSite=Lax`（`operatorauth/service.go:282`）。
 3. **`VITE_API_BASE_URL` 是 build-time**：`api.ts:18` 讀 `import.meta.env.VITE_API_BASE_URL`，Vite 在 `pnpm build` 時**內聯**字串 → **換環境要重建**；留空＝同 origin（反代情境就該留空）。
-4. **兩個產生檔要在 commit 內**：`src/lib/proto/**` 與 `src/lib/errcode.ts` 由後端產生器產出（CI 的 `go` job 有冪等閘門），**手改會在 CI 紅**。
+4. **兩個產生檔要在 commit 內**：`src/lib/proto/**` 與 `src/lib/errcode.ts` 由 sales-order-dispatch/backend 產生器產出；修改來源後請於 product 倉重新生成並複製回本倉，手改需同時更新兩處。
 
 `VITE_API_BASE_URL` 是為了「同一個反代後面、但 console 由不同路徑／服務提供」這類彈性，
 **不是**拿來跨來源直連 API 的：
@@ -127,36 +127,29 @@ operator 白名單。前端隱藏／導向只是少一次「進得去但每個 R
 | `/plans`、`/entitlements` | 方案與價目／方案權益矩陣 |
 | `/receivables`、`/audit` | 待收款／平台稽核 |
 
-## UI 元件庫：以 alias 共用租戶 SPA 的實作
+## UI 元件庫：@ark-tailkit/ui
 
-`frontend/src/components/ui`（Ark UI × Tailkit）就是唯一實作，console 不複製：
+console 與租戶 SPA 共用獨立 package `@ark-tailkit/ui`（Ark UI × Tailkit，私有 registry），不複製元件：
 
 ```ts
-// vite.config.ts（節錄）＋ tsconfig.json 的 paths
-alias: {
-  "@ui/": "<repo>/frontend/src/components/ui/",
-  "@ui": "<repo>/frontend/src/components/ui/index.ts",
-  "@/": "<repo>/frontend/src/",
-  "~/": "<repo>/frontend/src/",
-},
+// src/index.css
+@import "@ark-tailkit/ui/tokens.css";
+@source "../node_modules/@ark-tailkit/ui/src/ui";
 ```
 
-- `@ui/*` 是頁面用的入口；`@/`、`~/` 是**元件庫自己的內部 import**（`@/lib/cn`、`~/components/ui/...`）
-  原樣解析所需——沒有這兩個，alias 進去的元件會在 import 階段就失敗。
-- console 自家程式碼一律相對路徑（`./lib/api`），不靠 `~`（那是租戶 SPA 的根）。
-- 樣式同源：`src/index.css` 直接 `@import "../../frontend/src/index.css"`（設計 tokens 不複製），
-  並以 `@source "../../frontend/src/components/ui"` 讓 Tailwind 掃到共用元件的 class
-  （Vite root 在 platform-console，自動掃描不會涵蓋 frontend）。
-- 因此 console 必須自備元件庫的執行期相依：`@ark-ui/solid`、`lucide-solid`、`class-variance-authority`、
-  `clsx`、`tailwind-merge`、`@tanstack/solid-router`（sidebar 用到）、`tailwindcss` 及其 Vite 插件。
-- 三個 app 之後若出現第三個消費者再抽共用 package（目前兩個，alias 足夠）。
+- 設計 tokens 與元件樣式來自 package；Tailwind 需以 `@source` 明示掃描路徑，否則 Vite root 外的 class 不會產出。
+- console 自家程式碼一律相對路徑（`./lib/api`），不依賴 `~`、`@/` 等 alias。
+- 執行期相依：`@ark-ui/solid`、`lucide-solid`、`class-variance-authority`、`clsx`、
+  `tailwind-merge`、`tailwindcss` 及其 Vite 插件。
 
 ## 產生檔（不可手改）
 
 | 檔案 | 來源 |
 | --- | --- |
-| `src/lib/proto/**` | `task proto:gen`（`backend/buf.gen.yaml` 的 `bufbuild/es` → 本目錄），CI 有冪等閘門 |
-| `src/lib/errcode.ts` | `cd backend && go generate ./internal/errcode`，CI 有冪等閘門 |
+| `src/lib/proto/**` | sales-order-dispatch/backend `task proto:gen`（`backend/buf.gen.yaml` 的 `bufbuild/es` → `platform-console/src/lib/proto`） |
+| `src/lib/errcode.ts` | sales-order-dispatch/backend `task errcode:gen`（`cmd/gen-errcodes` → `platform-console/src/lib/errcode.ts`） |
+
+> 來源位於 sales-order-dispatch（product 倉），console 倉目前不執行產生器；修改來源後請於 product 倉重新生成並複製回本倉 commit。`platform-console/Taskfile.yml` 的 `gen` 任務僅保留文件入口。
 
 錯誤顯示一律走 `src/lib/errors.ts`：取 `ConnectError` 的 `ErrorInfo`（碼 ＋ 已渲染訊息），
 訊息缺席時才用 `errcode.ts` 的碼表投影補位——**不硬編訊息字串**。

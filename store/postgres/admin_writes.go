@@ -16,8 +16,8 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/money"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/money"
+	"github.com/salesorder/platform/store"
 )
 
 // operatorGovernanceLockKey 為「操作者治理」的交易級 advisory lock key

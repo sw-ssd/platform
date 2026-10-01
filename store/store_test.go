@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/store"
 )
 
 // 假實作是判定層單元測試的地基:它的過濾語意一旦與 SQL 實作不同,判定層的測試就會失真。

@@ -13,8 +13,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/entitlements"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/entitlements"
+	"github.com/salesorder/platform/store"
 	commonv1 "github.com/salesorder/sales-order-1.0/backend/contracts/proto/salesorder/v1"
 )
 

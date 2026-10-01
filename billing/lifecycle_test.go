@@ -37,8 +37,8 @@ import (
 	"github.com/google/uuid"
 	"connectrpc.com/connect"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/billing"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/billing"
+	"github.com/salesorder/platform/store"
 )
 
 // at 造 UTC 時間（期別日期一律 UTC，免得時區把「日」的邊界弄模糊）。

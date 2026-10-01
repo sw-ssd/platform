@@ -1,4 +1,4 @@
-module github.com/salesorder/sales-order-1.0/backend/internal/platform
+module github.com/salesorder/platform
 
 go 1.26.0
 
@@ -7,7 +7,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.11.0
-	github.com/pressly/goose/v3 v3.28.0
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/salesorder/sales-order-1.0/backend/contracts v0.0.0
 	golang.org/x/oauth2 v0.37.0
@@ -52,6 +51,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/pressly/goose/v3 v3.28.0 // indirect
 	github.com/sethvargo/go-retry v0.4.0 // indirect
 	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect

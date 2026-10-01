@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/store"
 )
 
 // FakeBilling 是 T4(收款)、T5(排程)、T6(outbox consumer)的單元測試地基:它的語意一旦與 SQL

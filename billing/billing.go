@@ -21,9 +21,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/requestid"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/entitlements"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/money"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/entitlements"
+	"github.com/salesorder/platform/money"
+	"github.com/salesorder/platform/store"
 )
 
 // allowedTransitions 為訂閱狀態機（spec §5.2）：不在表上的轉移一律拒絕（PLAT-3001）。收款只走

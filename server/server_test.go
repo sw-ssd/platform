@@ -11,9 +11,9 @@ import (
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
 	platformv1 "github.com/salesorder/sales-order-1.0/backend/contracts/proto/platform/v1"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/entitlements"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/server"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/entitlements"
+	"github.com/salesorder/platform/server"
+	"github.com/salesorder/platform/store"
 )
 
 func ptr[T any](v T) *T { return &v }

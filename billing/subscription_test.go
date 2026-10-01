@@ -24,8 +24,8 @@ import (
 
 	connect "connectrpc.com/connect"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/billing"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/billing"
+	"github.com/salesorder/platform/store"
 )
 
 // periodEnd 為夾具的當期期末（＝下一期的起日，也是「下一期生效」的生效點）。

@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/entitlements"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/entitlements"
+	"github.com/salesorder/platform/store"
 )
 
 // fakeCache 記錄失效呼叫；scanKeys 模擬「掃得到哪些鍵」；failKeys 模擬特定鍵刪除失敗。

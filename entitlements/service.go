@@ -15,7 +15,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/store"
 )
 
 // Feature code：方案／override／計數器三端共用同一組字串，打錯字就是算錯帳。

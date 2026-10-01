@@ -27,8 +27,8 @@ import (
 
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/testsupport"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store/postgres"
+	"github.com/salesorder/platform/store"
+	"github.com/salesorder/platform/store/postgres"
 )
 
 // TestIntegrationBillingMigrationSettings 驗證 00030 的兩件事：回滾完整（只帶走 settings）、

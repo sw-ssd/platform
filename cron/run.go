@@ -36,7 +36,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/salesorder/sales-order-1.0/backend/internal/platform/store"
+	"github.com/salesorder/platform/store"
 )
 
 // isBillingDataError 判斷 EnsureNextPeriod 的失敗是否為「資料問題」(缺價目／週期非法)：

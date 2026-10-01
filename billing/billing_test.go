@@ -24,8 +24,8 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/requestid"
-	"github.com/salesorder/platform/billing"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/billing"
+	"github.com/sw-ssd/platform/store"
 	commonv1 "github.com/salesorder/sales-order-1.0/backend/contracts/proto/salesorder/v1"
 )
 

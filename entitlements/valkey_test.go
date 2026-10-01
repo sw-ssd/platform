@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/salesorder/platform/entitlements"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/entitlements"
+	"github.com/sw-ssd/platform/store"
 )
 
 // fakeCache 記錄失效呼叫；scanKeys 模擬「掃得到哪些鍵」；failKeys 模擬特定鍵刪除失敗。

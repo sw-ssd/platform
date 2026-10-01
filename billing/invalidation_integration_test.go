@@ -29,9 +29,9 @@ import (
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/cache"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/testsupport"
-	"github.com/salesorder/platform/billing"
-	"github.com/salesorder/platform/entitlements"
-	"github.com/salesorder/platform/store/postgres"
+	"github.com/sw-ssd/platform/billing"
+	"github.com/sw-ssd/platform/entitlements"
+	"github.com/sw-ssd/platform/store/postgres"
 )
 
 // zeroCounter 為計數器替身：本測試只判定 boolean 功能，用量不會被用到。

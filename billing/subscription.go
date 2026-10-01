@@ -25,8 +25,8 @@ import (
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/requestid"
-	"github.com/salesorder/platform/money"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/money"
+	"github.com/sw-ssd/platform/store"
 )
 
 // maxTrialDays 為試用的**上限**（365 天）。開通是不收錢地放行一個方案的全部權益，而平台稽核只會

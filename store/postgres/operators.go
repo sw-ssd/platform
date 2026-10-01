@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/salesorder/platform/operatorauth"
+	"github.com/sw-ssd/platform/operatorauth"
 )
 
 // Operators 以 admin(owner)連線存取 platform.operators 白名單與登入稽核。

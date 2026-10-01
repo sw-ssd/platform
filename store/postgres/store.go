@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/store"
 )
 
 // Store 以 database/sql 讀取平台域資料(admin／owner 連線,見套件說明)。

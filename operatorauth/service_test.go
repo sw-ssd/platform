@@ -25,7 +25,7 @@ import (
 	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/salesorder/platform/operatorauth"
+	"github.com/sw-ssd/platform/operatorauth"
 )
 
 const testSecret = "platform-secret"

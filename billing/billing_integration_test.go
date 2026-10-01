@@ -22,8 +22,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 
-	"github.com/salesorder/platform/billing"
-	"github.com/salesorder/platform/store/postgres"
+	"github.com/sw-ssd/platform/billing"
+	"github.com/sw-ssd/platform/store/postgres"
 	"github.com/salesorder/sales-order-1.0/backend/contracts/testsupport"
 )
 

@@ -12,7 +12,7 @@ import (
 
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/testsupport"
-	"github.com/salesorder/platform/store/postgres"
+	"github.com/sw-ssd/platform/store/postgres"
 )
 
 // TestIntegrationOperators 以真 PostgreSQL 驗證 operatorauth 的存取層:

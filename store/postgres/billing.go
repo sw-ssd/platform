@@ -20,8 +20,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/salesorder/platform/money"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/money"
+	"github.com/sw-ssd/platform/store"
 )
 
 var _ store.BillingStore = (*Store)(nil)

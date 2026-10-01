@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/salesorder/platform/money"
+	"github.com/sw-ssd/platform/money"
 )
 
 func TestParseCentsRejectsAmbiguity(t *testing.T) {

@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/salesorder/platform/billing"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/billing"
+	"github.com/sw-ssd/platform/store"
 )
 
 // recordingCache 只記錄失效（Delete）呼叫；其餘 Cache 方法為 no-op。

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/store"
 )
 
 // Admin 為平台營運工具(PlatformAdminService)的存取層:跨租戶投影查詢 ＋ 平台稽核寫入。

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/salesorder/platform/entitlements"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/entitlements"
+	"github.com/sw-ssd/platform/store"
 )
 
 // TestSnapshot 驗租戶端投影：方案／狀態／試用到期 + 每個已知 feature 的判定與用量。

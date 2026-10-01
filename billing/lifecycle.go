@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/errcode"
-	"github.com/salesorder/platform/money"
-	"github.com/salesorder/platform/store"
+	"github.com/sw-ssd/platform/money"
+	"github.com/sw-ssd/platform/store"
 )
 
 // EnsureNextPeriod 在到期前 leadDays 天內建立下一期（open，價格快照為當期生效價）。

@@ -1,4 +1,4 @@
-module github.com/salesorder/platform
+module github.com/sw-ssd/platform
 
 go 1.26.0
 

@@ -11,8 +11,8 @@ import (
 
 
 	"github.com/salesorder/sales-order-1.0/backend/contracts/testsupport"
-	"github.com/salesorder/platform/store"
-	"github.com/salesorder/platform/store/postgres"
+	"github.com/sw-ssd/platform/store"
+	"github.com/sw-ssd/platform/store/postgres"
 )
 
 // TestIntegrationPlatformStore 以真 PostgreSQL 驗證 store 的四項唯讀查詢與 00029 的

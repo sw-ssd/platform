@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+permissions: read-all
+
+jobs:
+  go:
+    name: Go(platform)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache-dependency-path: platform/go.sum
+      - name: Vet
+        run: go vet ./...
+      - name: Test # -count=1 關結果快取(同 product #41)
+        run: go test -count=1 ./...
+      - name: Build
+        run: go build ./...
+
+  platform-console:
+    name: Platform console(SolidJS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Forgejo registry auth
+        run: pnpm config set //apg-git.sowinsoft.com/api/packages/ssd/npm/:_authToken "${NPM_PACKAGES_TOKEN}"
+        env:
+          NPM_PACKAGES_TOKEN: ${{ secrets.NPM_PACKAGES_TOKEN }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # platform-console 是 pnpm workspace 成員(root pnpm-workspace.yaml),安裝在 root 一次即可。
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C platform-console typecheck
+      - run: pnpm -C platform-console lint
+      - run: pnpm -C platform-console test
+      - run: pnpm -C platform-console build

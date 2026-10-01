@@ -331,9 +331,6 @@ func (s *Service) CheckLimitRPC(ctx context.Context, internalID uuid.UUID, produ
 	if s.unlimited {
 		return nil
 	}
-	if productID == "" {
-		productID = "sales-order"
-	}
 	companyID, err := s.st.ResolveCompanyID(ctx, internalID)
 	if err != nil {
 		return err

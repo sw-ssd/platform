@@ -12,6 +12,7 @@ import { Select } from "../components/select";
 import { WriteForm } from "../components/write";
 import { platform } from "../lib/api";
 import { describeError } from "../lib/errors";
+import { MONEY_PATTERN } from "../lib/patterns";
 import type { Receivable } from "../lib/proto/platform/v1/platform_pb";
 import { downloadCsv, receivableStatus, receivablesCsv } from "../lib/receivables";
 
@@ -30,8 +31,6 @@ import { downloadCsv, receivableStatus, receivablesCsv } from "../lib/receivable
  */
 const PAGE_SIZE = 50;
 
-/** 與後端 money.ParseCents 相同的形狀（整數位 ＋ 最多兩位小數）；留空代表採用期別快照。 */
-const MONEY_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 const PROVIDERS = [
   { value: "manual", label: "人工匯款" },

@@ -181,4 +181,36 @@ describe("TenantsPage", () => {
     await screen.findByText("乙公司");
     expect(screen.queryByText(/共 3 筆/)).toBeNull();
   });
+
+  it("先篩選再翻頁：翻頁請求仍帶原篩選條件", async () => {
+    respond(rows, 45, 1);
+    renderPage();
+    await screen.findByText("乙公司");
+
+    fireEvent.input(screen.getByLabelText("公司關鍵字"), { target: { value: "甲" } });
+    fireEvent.click(screen.getByRole("button", { name: "查詢" }));
+
+    await waitFor(() =>
+      expect(listTenants).toHaveBeenLastCalledWith({
+        page: 1,
+        pageSize: 20,
+        keyword: "甲",
+        status: "",
+      }),
+    );
+
+    // 新的關鍵字查詢解析後分頁控制才會出現（與初始載入不同，這是新的 query key）。
+    await screen.findByRole("button", { name: "下一頁" });
+    respond(rows, 45, 2);
+    fireEvent.click(screen.getByRole("button", { name: "下一頁" }));
+
+    await waitFor(() =>
+      expect(listTenants).toHaveBeenLastCalledWith({
+        page: 2,
+        pageSize: 20,
+        keyword: "甲",
+        status: "",
+      }),
+    );
+  });
 });

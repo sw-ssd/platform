@@ -52,7 +52,7 @@ export default function TenantsPage() {
         onSubmit={(e) => {
           e.preventDefault();
           setPage(1);
-          setFilter({ keyword: keywordDraft(), status: statusDraft() });
+          setFilter({ keyword: keywordDraft().trim(), status: statusDraft() });
         }}
       >
         <Field class="w-full sm:w-64">

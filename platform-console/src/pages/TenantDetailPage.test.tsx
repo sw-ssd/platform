@@ -587,4 +587,10 @@ describe("TenantDetailPage", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog.textContent).not.toContain("**");
   });
+
+  it("從路由參數讀 tenantId 並帶入 getTenant 查詢", async () => {
+    renderAt();
+    await screen.findByText("甲公司");
+    expect(getTenant).toHaveBeenCalledWith({ companyId: "1" });
+  });
 });

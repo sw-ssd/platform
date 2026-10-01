@@ -15,6 +15,7 @@ import { SubscriptionBadge } from "../components/status";
 import { WriteForm } from "../components/write";
 import { platform } from "../lib/api";
 import { describeError } from "../lib/errors";
+import { RFC3339_PATTERN } from "../lib/patterns";
 import { isExpired, projectTenantEntitlements, type ProjectedEntitlement } from "../lib/entitlements";
 // 列上帶的是 RPC 回來的例外（有 id 才能撤銷）；投影只用到其中幾個欄位。
 import type { TenantOverride } from "../lib/proto/platform/v1/platform_pb";
@@ -83,9 +84,7 @@ function SetOverrideForm(props: { companyId: string; onClose: () => void; onDone
     // 未結項 #26 後半：只填日期（2027/01/01）在 JS 是合法日期，但後端用 time.Parse(time.RFC3339)
     // 會擋 —— 訊息卻說「格式須為 RFC3339」，而檢查用的是寬鬆的 new Date。與開通表單同一個
     // RFC3339 形狀檢查（見 CreateSubscriptionForm 的 validate），放行註定失敗的輸入就是白跑一趟。
-    const OVERRIDE_RFC3339 =
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
-    if (expiresAt().trim() !== "" && !OVERRIDE_RFC3339.test(expiresAt().trim())) {
+    if (expiresAt().trim() !== "" && !RFC3339_PATTERN.test(expiresAt().trim())) {
       errs.expires = "到期日請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不過期（只填日期後端會擋）。";
     }
     return Object.keys(errs).length > 0 ? errs : undefined;
@@ -328,7 +327,6 @@ function CreateSubscriptionForm(props: {
 
   // 只填日期（2027-01-01）在 JS 的 Date 是合法的，但後端用 time.Parse(time.RFC3339) 會擋 ——
   // 前端若用 `new Date()` 判形狀，就會放行一個註定失敗的輸入，所以要照 RFC3339 的形狀判。
-  const RFC3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
   const validate = (): Record<string, string> | undefined => {
     const errs: Record<string, string> = {};
@@ -340,7 +338,7 @@ function CreateSubscriptionForm(props: {
     }
     const trial = trialEndsAt().trim();
     if (trial !== "") {
-      if (!RFC3339.test(trial)) {
+      if (!RFC3339_PATTERN.test(trial)) {
         errs.trial = "試用到期請填 RFC3339（例：2027-01-01T00:00:00Z），或留空表示不試用（只填日期後端會擋）。";
       } else {
         // 未來的試用才有意義（過去的試用等於一開通就過期），而**超過 MAX_TRIAL_DAYS 天**後端一律拒

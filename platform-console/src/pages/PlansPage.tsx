@@ -13,6 +13,7 @@ import { Select } from "../components/select";
 import { WriteForm } from "../components/write";
 import { platform } from "../lib/api";
 import { describeError } from "../lib/errors";
+import { MONEY_PATTERN } from "../lib/patterns";
 
 /**
  * 方案與價目。
@@ -27,9 +28,6 @@ import { describeError } from "../lib/errors";
  * 金額前端只做**格式檢查**（後端 `money.ParseCents` 才是真偽的決定者：負數、超過兩位小數、
  * 非數字都回 SYS-1001）。`reason` 必填同樣由後端擋，這裡先擋只是少跑一趟。
  */
-
-/** 單列價格的輸入檢查：與後端 money.ParseCents 相同的形狀（整數位 ＋ 最多兩位小數）。 */
-const MONEY_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 /**
  * 調價表單。欄位狀態放在**對話框內容的子元件**裡：`DialogContent` 關閉時整棵子樹卸載，
